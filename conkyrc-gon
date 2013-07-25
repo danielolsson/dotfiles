@@ -69,6 +69,11 @@ default_color white
 default_shade_color white
 default_outline_color white
 
+# Default values for graphs
+default_graph_size 0 25
+#max_text_width 80
+#text_buffer_size 512
+
 # Text alignment, other possible values are commented
 alignment top_left
 #alignment top_right
@@ -77,8 +82,8 @@ alignment top_left
 
 # Gap between borders of screen and text
 
-gap_x 20
-gap_y 20
+gap_x 10
+gap_y 10
 
 # Add spaces to keep things from moving about?  This only affects certain objects.
 use_spacer yes
@@ -199,48 +204,62 @@ uppercase no
 # stuff after 'TEXT' will be formatted on screen
 
 TEXT
-${color white}[${color #00ff00}Berkelio${color white}][${color red}$nodename${color white}] -
+${color white}[${color red}$nodename${color white}][${color #00ff00}$addr${color white}]
 ${color #888888}$sysname $kernel ${color #CCCCCC}on ${color #888888}$machine
 ${color #888888}Uptime: $uptime
-${color #888888}${time %b/%a/%d}                     ${color #00ff00}${time %k:%M:%S}
+${color #888888}${time %Y-%m-%d}                     ${color #00ff00}${time %k:%M:%S}
 ${color white}${hr 2}
-${color #ffccaa}Monitors-
-${color #888888}cpu: ${color #CCCCCC}${cpu}%
+${color #ffccaa}Monitors
+${color #888888}cpu: ${color #CCCCCC}${cpu cpu1}% ${color #CCCCCC}${cpu cpu2}% ${color #CCCCCC}${cpu cpu3}% ${color #CCCCCC}${cpu cpu4}%
 ${color #888888}${cpugraph 25 ff0000 ff00ff}
 ${color #888888}ram : ${color #CCCCCC}$mem${color #888888}/${color #CCCCCC}$memmax ${color #888888}- ${color #CCCCCC}$memperc%
 ${color #888888}swap: ${color #CCCCCC}$swap${color #888888}/${color #CCCCCC}$swapmax ${color #888888}   - ${color #CCCCCC}$swapperc%
 ${color #888888}load: ( ${color #CCCCCC}$loadavg ${color #888888})
-${color #888888}procesos: ${color #CCCCCC}$processes	${color #888888}corriendo: ${color #CCCCCC}$running_processes
+${color #888888}processes: ${color #CCCCCC}$processes	${color #888888}running: ${color #CCCCCC}$running_processes
 
-${color #ffccaa}Net:${color #BBBBBB}eth1-
-${color #888888}DOWN: ${color #CCCCCC}${downspeed eth1} k/s	    ${color #888888}UP: ${color #CCCCCC}${upspeed eth1} k/s
-${color #888888}${downspeedgraph eth1 25,100 ff0000 0000ff}	  ${color #888888}${upspeedgraph eth1 25,100 0000ff ff0000}
-${color #888888}TOTAL: ${color #CCCCCC}${totaldown eth1}	        ${color #888888}TOTAL: ${color #CCCCCC}${totalup eth1}
+${color #ffccaa}Net:${color #BBBBBB}eth0
+${color #888888}DOWN: ${color #CCCCCC}${downspeed eth0} k/s	    ${color #888888}UP: ${color #CCCCCC}${upspeed eth0} k/s
+${color #888888}${downspeedgraph eth0 25,100 ff0000 0000ff}	  ${color #888888}${upspeedgraph eth0 25,100 0000ff ff0000}
+${color #888888}TOTAL: ${color #CCCCCC}${totaldown eth0}	        ${color #888888}TOTAL: ${color #CCCCCC}${totalup eth0}
 
-${color #ffccaa}Espacio libre-
+${color #ffccaa}Free space
 ${color #888888}root : ${color #CCCCCC}${fs_used /}${color #888888}/${color #CCCCCC}${fs_size /} ${color #888888}(${color #CCCCCC}${fs_free /} ${fs_free_perc /}% ${color #888888} free)
        ${fs_bar /}
 ${color #888888}boot : ${color #CCCCCC}${fs_used /boot}${color #888888}/${color #CCCCCC}${fs_size /boot} ${color #888888}(${color #CCCCCC}${fs_free /boot} ${fs_free_perc /boot}% ${color #888888} free)
        ${fs_bar /boot}
-${color #888888}home : ${color #CCCCCC}${fs_used /home/berkelio}${color #888888}/${color #CCCCCC}${fs_size /home/berkelio} ${color #888888}(${color #CCCCCC}${fs_free /home/berkelio} ${fs_free_perc /home/berkelio}% ${color #888888} free)
-       ${fs_bar /home/berkelio}
-${color #888888}share: ${color #CCCCCC}${fs_used /mnt/share}${color #888888}/${color #CCCCCC}${fs_size /mnt/share} ${color #888888}(${color #CCCCCC}${fs_free /mnt/share} ${fs_free_perc /mnt/share}% ${color #888888} free)
-       ${fs_bar /mnt/share}
-${color #888888}hdb1 : ${color #CCCCCC}${fs_used /mnt/copia}${color #888888}/${color #CCCCCC}${fs_size /mnt/copia} ${color #888888}(${color #CCCCCC}${fs_free /mnt/copia} ${fs_free_perc /mnt/copia}% ${color #888888} free)
-       ${fs_bar /mnt/copia}
+${color #888888}home : ${color #CCCCCC}${fs_used /home}${color #888888}/${color #CCCCCC}${fs_size /home} ${color #888888}(${color #CCCCCC}${fs_free /home} ${fs_free_perc /home}% ${color #888888} free)
+       ${fs_bar /home}
+${color #888888}idddata: ${color #CCCCCC}${fs_used /idddata}${color #888888}/${color #CCCCCC}${fs_size /idddata} ${color #888888}(${color #CCCCCC}${fs_free /idddata} ${fs_free_perc /idddata}% ${color #888888} free)
+       ${fs_bar /idddata}
 
-${color #ffccaa}Uso del Procesador.
-${color #CCCCCC}Nombre            PID     CPU%   MEM%
+${color #ffccaa}CPU Usage
+${color #CCCCCC}Name            PID     CPU%   MEM%
 ${color #ddaa00} ${top name 1} ${top pid 1} ${top cpu 1} ${top mem 1}
 ${color #888888} ${top name 2} ${top pid 2} ${top cpu 2} ${top mem 2}
 ${color #888888} ${top name 3} ${top pid 3} ${top cpu 3} ${top mem 3}
 ${color #888888} ${top name 4} ${top pid 4} ${top cpu 4} ${top mem 4}
 ${color #888888} ${top name 5} ${top pid 5} ${top cpu 5} ${top mem 5}
 
-${color #ffccaa}Xmms: ${color #888888}${execi 25 cat /tmp/xmms-info | grep Status: | cut -d ":" -f2}
-${color #888888}Artista: ${color #cccccc}${execi 25 xmmsctrl title | cut -d "-" -f1}
-${color #888888}Titulo :${color #cccccc}${execi 25 xmmsctrl title | cut -d "-" -f2}
-${color #888888}Tiempo : ${color #cccccc}${execi 25 xmmsctrl print %m%n} ${color #888888}( ${color #cccccc}${execi 25 xmmsctrl print %M%n} ${color #888888})
-${color #888888}Lista  : ${color #cccccc}${execi 25 xmmsctrl getpos} ${color #888888}/${color #CCCCCC}${execi 25 cat /tmp/xmms-info | grep Tunes | cut -d ":" -f2}
+${color white}${hr 2}
+${color white}[${color red}SEMCW12107${color white}][${color #00ff00}10.129.49.176${color white}]
+#${color #888887}${execi 10 snmpget -v 1 -c public -OQv semcw12107 SNMPv2-MIB::sysDescr.0}
+${color #888888}Uptime: ${execi 10 snmpget -v 1 -c public -OQv semcw12107 DISMAN-EVENT-MIB::sysUpTimeInstance}
 
-  ${color #ddaa00}${execi 8 xmmsbar}
+${color #888888}cpu: ${color #CCCCCC}${execi 10 snmpget -v 1 -c public -OQv semcw12107 HOST-RESOURCES-MIB::hrProcessorLoad.4}%
+#${color #888888}${execigraph 25 snmpget -v 1 -c public -OQv semcw12107 HOST-RESOURCES-MIB::hrProcessorLoad.4}
+#${color #888888}ram : ${color #CCCCCC}$mem${color #888888}/${color #CCCCCC}${execi 10 snmpget -v 1 -c public -OQv semcw12107 HOST-RESOURCES-MIB::hrMemorySize.0} ${color #888888}- ${color #CCCCCC}$memperc%
+
+${color white}${hr 2}
+${color white}[${color red}seldlx6264${color white}][${color #00ff00}10.129.49.140${color white}]
+#${color #888887}${execi 10 snmpget -v 1 -c public -OQv seldlx6264 SNMPv2-MIB::sysDescr.0}
+${color #888888}Uptime: ${execi 10 snmpget -v 1 -c public -OQv seldlx6264 HOST-RESOURCES-MIB::hrSystemUptime.0}
+
+${color #888888}load (1 min): ${color #CCCCCC}${execi 10 snmpget -v 1 -c public -OQv seldlx6264 UCD-SNMP-MIB::laLoad.1}%
+${color #888888}ram  (avail): ${color #CCCCCC}${execi 10 snmpget -v 1 -c public -OQv seldlx6264 UCD-SNMP-MIB::memAvailReal.0}${color #888888}/${color #CCCCCC}${execi 10 snmpget -v 1 -c public -OQv seldlx6264 UCD-SNMP-MIB::memTotalReal.0}
+${color #888888}swap (avail): ${color #CCCCCC}${execi 10 snmpget -v 1 -c public -OQv seldlx6264 UCD-SNMP-MIB::memAvailSwap.0}${color #888888}/${color #CCCCCC}${execi 10 snmpget -v 1 -c public -OQv seldlx6264 UCD-SNMP-MIB::memTotalSwap.0}
+# /
+${color #888888}${execi 10 snmpget -v 1 -c public -OQv seldlx6264 HOST-RESOURCES-MIB::hrStorageDescr.31} : ${color #CCCCCC}${execi 10 snmpget -v 1 -c public -OQv seldlx6264 HOST-RESOURCES-MIB::hrStorageUsed.31}${color #888888}/${color #CCCCCC}${execi 10 snmpget -v 1 -c public -OQv seldlx6264 HOST-RESOURCES-MIB::hrStorageSize.31} 4kB
+# /home
+${color #888888}${execi 10 snmpget -v 1 -c public -OQv seldlx6264 HOST-RESOURCES-MIB::hrStorageDescr.35} : ${color #CCCCCC}${execi 10 snmpget -v 1 -c public -OQv seldlx6264 HOST-RESOURCES-MIB::hrStorageUsed.35}${color #888888}/${color #CCCCCC}${execi 10 snmpget -v 1 -c public -OQv seldlx6264 HOST-RESOURCES-MIB::hrStorageSize.35} 4kB
+# /home/crashtool
+#${color #888888}${execi 10 snmpget -v 1 -c public -OQv seldlx6264 HOST-RESOURCES-MIB::hrStorageDescr.36} : ${color #CCCCCC}${execi 10 snmpget -v 1 -c public -OQv seldlx6264 HOST-RESOURCES-MIB::hrStorageUsed.36}${color #888888}/${color #CCCCCC}${execi 10 snmpget -v 1 -c public -OQv seldlx6264 HOST-RESOURCES-MIB::hrStorageSize.36} 4kB
