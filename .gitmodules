@@ -10,3 +10,6 @@
 [submodule "vim-css3-syntax"]
 	path = vim-css3-syntax
 	url = https://github.com/hail2u/vim-css3-syntax.git
+[submodule "tmux-config"]
+	path = tmux-config
+	url = https://github.com/tony/tmux-config
