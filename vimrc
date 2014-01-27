@@ -16,12 +16,22 @@
 "set statusline +=%1*%4v\ %*             "virtual column number
 "set statusline +=%2*0x%04B\ %*          "character under cursor
 
-set rtp+=~daniel/dotfiles/powerline/powerline/bindings/vim
+set rtp+=~/dotfiles/powerline/powerline/bindings/vim
 "python from powerline.vim import setup as powerline_setup
 "python powerline_setup()
 "python del powerline_setup
 
-set guifont=Menlo\ for\ Powerline
+"set guifont=Menlo\ for\ Powerline
+set guifont=Menlo
 let g:Powerline_symbols = 'fancy'
 
+colorscheme desert256
 set laststatus=2
+"highlight OverLength ctermbg=darkred ctermfg=white guibg=#FFD9D9
+highlight OverLength ctermbg=52 ctermfg=white guibg=#FFD9D9
+match OverLength /\%81v.\+/
+highlight ColorColumn ctermbg=52 guibg=#FFD9D9
+set colorcolumn=80
+
+" Treat .hql files as SQL for syntax highlighting
+au BufNewFile,BufRead *.hql set filetype=sql
