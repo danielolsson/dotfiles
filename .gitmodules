@@ -13,3 +13,6 @@
 [submodule "tmux-config"]
 	path = tmux-config
 	url = https://github.com/tony/tmux-config
+[submodule "vim-colour-sampler-pack"]
+	path = vim-colour-sampler-pack
+	url = https://github.com/vim-scripts/Colour-Sampler-Pack.git
