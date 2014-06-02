@@ -25,13 +25,19 @@ set rtp+=~/dotfiles/powerline/powerline/bindings/vim
 set guifont=Menlo
 let g:Powerline_symbols = 'fancy'
 
+" http://ethanschoonover.com/solarized/vim-colors-solarized
+"colorscheme solarized
 colorscheme desert256
+"colorscheme mustang
 set laststatus=2
 "highlight OverLength ctermbg=darkred ctermfg=white guibg=#FFD9D9
-highlight OverLength ctermbg=52 ctermfg=white guibg=#FFD9D9
-match OverLength /\%81v.\+/
-highlight ColorColumn ctermbg=52 guibg=#FFD9D9
-set colorcolumn=80
+"highlight OverLength ctermbg=52 ctermfg=white guibg=#FFD9D9
+"match OverLength /\%81v.\+/
+"highlight ColorColumn ctermbg=52 guibg=#FFD9D9
+"set colorcolumn=80
+
+" Use modelines
+set modeline
 
 " Treat .hql files as SQL for syntax highlighting
 au BufNewFile,BufRead *.hql set filetype=sql
@@ -48,3 +54,12 @@ augroup Binary
   au BufWritePost *.bin set nomod | endif
 augroup END
 set modeline
+
+"
+" Enable tmux integration with copying selections between panes:
+" vim:
+"   :'<,'>w !tmux load-buffer -
+" tmux:
+"   :paste-buffer -t <pane nr>
+"
+"
