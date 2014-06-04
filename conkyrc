@@ -100,6 +100,13 @@ no_buffers yes
 # set to yes if you want all text to be in uppercase
 uppercase no
 
+# LUA configuration
+lua_load ~/dotfiles/cdh4_cluster_status.lua
+lua_load ~/dotfiles/db_status.lua
+lua_load ~/dotfiles/background_services.lua
+#lua_startup_hook conky_init
+lua_draw_hook_pre conky_update
+
 # boinc (seti) dir
 # seti_dir /opt/seti
 
@@ -209,6 +216,17 @@ uppercase no
 #${font Luxi Mono:size=10}justo como este texto que o google traduz fÃªz o portuguÃªs
 # stuff after 'TEXT' will be formatted on screen
 
+#
+# Fonts:
+# OpenLogos - http://img.dafont.com/dl/?f=openlogos
+# PizzaDude Bullets - http://img.dafont.com/dl/?f=pizzadude_bullets
+# StyleBats - http://img.dafont.com/dl/?f=style_bats
+# Heydings - http://www.heydonworks.com/fonts/heydings_icons.zip
+# Entypo - http://dl.dropboxusercontent.com/u/4339492/Entypo.zip (http://www.entypo.com/)
+# DroidSansMono
+#
+
+
 TEXT
 ${color}[${color red}$nodename${color}][${color #00ff00}$addr${color}]
 ${voffset 4}${font OpenLogos:size=12}u${font}\
@@ -256,4 +274,21 @@ ${color #888888}cpu: ${color #CCCCCC}${execi 10 snmpget -v 1 -c public -OQv semc
 ${else}# ${if_exists /proc/vbox_windows7}
   ${voffset 12}${color #888888}${font PizzaDude Bullets:size=12}5${font} Windows VM not running..${color}
 ${endif}# ${if_exists /proc/vbox_windows7}
+
+${color}${hr 2}
+${lua_parse conky_cdh4_get_cluster_name}
+${lua_parse conky_cdh4_get_hdfs_status}${offset 40}${color #888888}${lua_bar conky_cdh4_get_hdfs_used}${color}
+${lua_parse conky_cdh4_get_mapreduce_status}${offset 10}${color #888888}${lua conky_cdh4_get_mapreduce_jobs}${color}
+${lua_parse conky_cdh4_get_zookeeper_status}${lua_parse conky_cdh4_get_zookeeper_connections}
+${lua_parse conky_cdh4_get_hive_status}
+${lua_parse conky_cdh4_get_hue_status}
+${offset 35}${voffset 10}${color #cccccc}Nodes:${offset 30}${lua_parse conky_cdh4_get_hosts_status}
+
+${color}${hr 2}
+ ${voffset -6}${lua_parse conky_db_heartbeat_prototype_status}${color}
+ ${voffset -6}${lua_parse conky_db_heartbeat_live_status}${color}
+ ${voffset -6}${lua_parse conky_db_diis_prod_status}${color}
+ ${voffset -6}${lua_parse conky_db_crashtool_prod_idd_status}${color}
+ ${voffset -6}${lua_parse conky_db_crashtool_prod_mtbf_status}${color}
+ ${voffset -6}${lua_parse conky_db_crashtool_rca_status}${color}
 
