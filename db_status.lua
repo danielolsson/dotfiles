@@ -235,7 +235,7 @@ function db_update(settings)
     crashtool_prod_mtbf_status = crashtool_prod_status[0]
 
     -- crashtool_stage_status = get_crashtool_stage_status()[0]
-    crashtool_rca_status = get_crashtool_rca_status(settings.crashtool_rca)[0]
+    -- crashtool_rca_status = get_crashtool_rca_status(settings.crashtool_rca)[0]
 end
 
 function db_heartbeat_status(hb_status)

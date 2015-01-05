@@ -84,9 +84,10 @@ function cdh4_get_zookeeper_status( zookeeper_service_name, settings )
         local rawstatus2 = get_json_from_url( services_url, settings.credentials )
         local zk_host_status = {}
         for metricnr, metric in ipairs(rawstatus2.items) do
-            if metric.name == "zk_server_connection_count" then
+            if metric.name == "zk_server_connection_count" and #(metric.data) > 0 then
                 zk_host_status.zk_server_connection_count = metric.data[#(metric.data)].value
             else
+                zk_host_status.zk_server_connection_count = -1
                 print "Unknown zookeeper metric!"
             end
         end
@@ -314,5 +315,5 @@ end
 
 
 --
-cdh4_update()
+-- cdh4_update()
 --
