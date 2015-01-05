@@ -20,6 +20,7 @@ set rtp+=~/dotfiles/powerline/powerline/bindings/vim
 "python from powerline.vim import setup as powerline_setup
 "python powerline_setup()
 "python del powerline_setup
+set rtp+=~/dotfiles/vimfiles/bundle/bufexplorer
 
 "set guifont=Menlo\ for\ Powerline
 set guifont=Menlo
