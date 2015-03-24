@@ -276,13 +276,23 @@ ${else}# ${if_exists /proc/vbox_windows7}
 ${endif}# ${if_exists /proc/vbox_windows7}
 
 ${color}${hr 2}
-${lua_parse conky_cdh4_get_cluster_name}
-${lua_parse conky_cdh4_get_hdfs_status}${offset 40}${color #888888}${lua_bar conky_cdh4_get_hdfs_used}${color}
-${lua_parse conky_cdh4_get_mapreduce_status}${offset 10}${color #888888}${lua conky_cdh4_get_mapreduce_jobs}${color}
-${lua_parse conky_cdh4_get_zookeeper_status}${lua_parse conky_cdh4_get_zookeeper_connections}
-${lua_parse conky_cdh4_get_hive_status}
-${lua_parse conky_cdh4_get_hue_status}
-${offset 35}${voffset 10}${color #cccccc}Nodes:${offset 30}${lua_parse conky_cdh4_get_hosts_status}
+${lua_parse conky_cdh4_get_cluster_name 1}
+${lua_parse conky_cdh4_get_hdfs_status 1}${offset 40}${color #888888}${lua_bar conky_cdh4_get_hdfs_used 1}${color}
+${lua_parse conky_cdh4_get_mapreduce_status 1}${offset 10}${color #888888}${lua conky_cdh4_get_mapreduce_jobs 1}${color}
+${lua_parse conky_cdh4_get_zookeeper_status 1}${lua_parse conky_cdh4_get_zookeeper_connections 1}
+${lua_parse conky_cdh4_get_hive_status 1}
+${lua_parse conky_cdh4_get_hue_status 1}
+${offset 35}${voffset 10}${color #cccccc}Nodes:${offset 30}${lua_parse conky_cdh4_get_hosts_status 1}
+
+${color}${hr 2}
+${lua_parse conky_cdh4_get_cluster_name 2}
+${lua_parse conky_cdh4_get_hdfs_status 2}${offset 40}${color #888888}${lua_bar conky_cdh4_get_hdfs_used 2}${color}
+${lua_parse conky_cdh4_get_yarn_status 2}${offset 20}${color #888888}${lua conky_cdh4_get_mapreduce_jobs 2}${color}
+${lua_parse conky_cdh4_get_zookeeper_status 2}${lua_parse conky_cdh4_get_zookeeper_connections 2}
+${lua_parse conky_cdh4_get_hive_status 2}
+${lua_parse conky_cdh4_get_hue_status 2}
+${offset 35}${voffset 20}${color #cccccc}Nodes:${offset 30}${lua_parse conky_cdh4_get_hosts_status 2}
+
 
 ${color}${hr 2}
  ${voffset -6}${lua_parse conky_db_heartbeat_prototype_status}${color}

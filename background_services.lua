@@ -31,7 +31,7 @@ function conky_init()
         return
     end
     conky_isinitializing = 1
-    settings = json_decode_file("settings.json")
+    settings = json_decode_file("dotfiles/settings.json")
     conky_isinitializing = 0
 end
 

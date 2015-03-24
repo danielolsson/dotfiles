@@ -107,7 +107,7 @@ function cdh4_get_services_status( settings )
             local capacity
             capacity = cdh4_get_hdfs_status( service.name, settings )
             status = { name = service.name, status = service.healthSummary, hdfs_used = capacity }
-        elseif service.type == "MAPREDUCE" then
+        elseif service.type == "MAPREDUCE" or service.type == "YARN" then
             status = cdh4_get_mapreduce_status( service.name, settings )
             status.name = service.name
             status.status = service.healthSummary
@@ -155,37 +155,41 @@ end
 local conky_start = 1
 local servicestatus = {}
 local hoststatus = {}
-local clustername = ""
+local clustername = {}
 
 -- This function triggers the update on the backend
 -- It should be called from another script with a timer - don't call it directly from conky!
 function cdh4_update( settings )
-    servicestatus = cdh4_get_services_status( settings )
-    hoststatus = cdh4_get_hosts_status( settings )
-    clustername = url_decode( settings.clustername )
+    for i, s in ipairs(settings) do
+        local cluster_index = tostring(i)
+        servicestatus[cluster_index] = cdh4_get_services_status( s )
+        hoststatus[cluster_index] = cdh4_get_hosts_status( s )
+        clustername[cluster_index] = url_decode( s.clustername )
+    end
 end
 
 -- This function triggers the update on the backend (called directly from conky)
 -- we use the conky variable ${updates} mod interval to determine if we're to update
-function conky_cdh4_parse_status()
-    local updates      = tonumber(conky_parse("${updates}"))
-    local interval     = 30
-    timer = (updates % interval)
-    if timer == 0 or conky_start == 1 then
-        -- print ("Update # "..updates)
-        -- print ("you will see this at conky start and then at " .. interval .. " cycle intervals")
-        conky_start = nil
-        servicestatus = cdh4_get_services_status()
-        hoststatus = cdh4_get_hosts_status()
-    end --if timer
-end
+-- function conky_cdh4_parse_status()
+--     local updates      = tonumber(conky_parse("${updates}"))
+--     local interval     = 30
+--     timer = (updates % interval)
+--     if timer == 0 or conky_start == 1 then
+--         -- print ("Update # "..updates)
+--         -- print ("you will see this at conky start and then at " .. interval .. " cycle intervals")
+--         conky_start = nil
+--         servicestatus = cdh4_get_services_status()
+--         hoststatus = cdh4_get_hosts_status()
+--     end --if timer
+-- end
 
 --
 -- Returns the service color from its name
 --
-function conky_cdh4_get_service_color( servicetype )
-    if servicestatus[servicetype] == nil then return "${color #888888}" end
-    local servicetypestatus = servicestatus[servicetype].status
+function conky_cdh4_get_service_color( cluster_index, servicetype )
+    if servicestatus[cluster_index] == nil then return "${color #888888}" end
+    if servicestatus[cluster_index][servicetype] == nil then return "${color #888888}" end
+    local servicetypestatus = servicestatus[cluster_index][servicetype].status
     if     servicetypestatus == "GOOD" then return "${color #00cc00}"
     elseif servicetypestatus == "CONCERNING" then return "${color #cccc00}"
     else return "${color #cc0000}"
@@ -193,84 +197,103 @@ function conky_cdh4_get_service_color( servicetype )
 end
 
 -- Get the CDH4 cluster name
-function conky_cdh4_get_cluster_name()
-    return clustername
+function conky_cdh4_get_cluster_name( cluster_index )
+    if clustername[cluster_index] == nil then
+        return ""
+    else
+        return clustername[cluster_index]
+    end
 end
 
 -- Get CDH4 service status
-function conky_cdh4_get_service_status( servicetype )
+function conky_cdh4_get_service_status( cluster_index, servicetype )
     local servicename = "Unknown"
-    if not (servicestatus[servicetype] == nil) then
-        servicename = servicestatus[servicetype].name
+    if not (servicestatus[cluster_index] == nil) then
+        if not (servicestatus[cluster_index][servicetype] == nil) then
+            servicename = servicestatus[cluster_index][servicetype].name
+        end
     end
-    return "${voffset 4}" .. conky_cdh4_get_service_color( servicetype ) .. "${font StyleBats:size=16}I${font}${color #cccccc}${voffset -4} " .. servicename .. "${color}"
+    return "${voffset 4}" .. conky_cdh4_get_service_color( cluster_index, servicetype ) .. "${font StyleBats:size=16}I${font}${color #cccccc}${voffset -4} " .. servicename .. "${color}"
 end
 
 -- Get the CDH4 HDFS status
-function conky_cdh4_get_hdfs_status()
-    return conky_cdh4_get_service_status( "HDFS" )
+function conky_cdh4_get_hdfs_status( cluster_index )
+    return conky_cdh4_get_service_status( cluster_index, "HDFS" )
 end
 
 -- Get the CDH4 HDFS used
-function conky_cdh4_get_hdfs_used()
-    if not (servicestatus["HDFS"] == nil) then
-        -- servicename = servicestatus["HDFS"].name
-        if not (servicestatus["HDFS"].hdfs_used == nil) then
-            return servicestatus["HDFS"].hdfs_used
+function conky_cdh4_get_hdfs_used( cluster_index )
+    if not (servicestatus[cluster_index] == nil) then
+        if not (servicestatus[cluster_index]["HDFS"] == nil) then
+            -- servicename = servicestatus[cluster_index]["HDFS"].name
+            if not (servicestatus[cluster_index]["HDFS"].hdfs_used == nil) then
+                return servicestatus[cluster_index]["HDFS"].hdfs_used
+            end
         end
     end
     return 0
 end
 
 -- Get the CDH4 Mapreduce status
-function conky_cdh4_get_mapreduce_status()
-    return conky_cdh4_get_service_status( "MAPREDUCE" )
+function conky_cdh4_get_mapreduce_status( cluster_index )
+    return conky_cdh4_get_service_status(  cluster_index, "MAPREDUCE" )
+end
+
+-- Get the CDH4 Yarn status
+function conky_cdh4_get_yarn_status( cluster_index )
+    return conky_cdh4_get_service_status(  cluster_index, "YARN" )
 end
 
 -- Get the CDH4 Mapreduce status
-function conky_cdh4_get_mapreduce_jobs()
+function conky_cdh4_get_mapreduce_jobs( cluster_index )
     result = ""
-    if not (servicestatus["MAPREDUCE"] == nil) then
-        if not (servicestatus["MAPREDUCE"].jobs_running == nil) then
-            result = "J:" .. servicestatus["MAPREDUCE"].jobs_running
+    if not (servicestatus[cluster_index] == nil) then
+        if not (servicestatus[cluster_index]["MAPREDUCE"] == nil) then
+            if not (servicestatus[cluster_index]["MAPREDUCE"].jobs_running == nil) then
+                result = "J:" .. servicestatus[cluster_index]["MAPREDUCE"].jobs_running
+            end
+            if not (servicestatus[cluster_index]["MAPREDUCE"].jobs_preparing == nil) then
+                result = result .. "/" .. servicestatus[cluster_index]["MAPREDUCE"].jobs_preparing
+            end
+            if not (servicestatus[cluster_index]["MAPREDUCE"].maps_running == nil) then
+                result = result .. " M:" .. servicestatus[cluster_index]["MAPREDUCE"].maps_running
+            end
+            if not (servicestatus[cluster_index]["MAPREDUCE"].map_slots == nil) then
+                result = result .. "/" .. servicestatus[cluster_index]["MAPREDUCE"].map_slots
+            end
+            if not (servicestatus[cluster_index]["MAPREDUCE"].reduces_running == nil) then
+                result = result .. " R:" .. servicestatus[cluster_index]["MAPREDUCE"].reduces_running
+            end
+            if not (servicestatus[cluster_index]["MAPREDUCE"].reduce_slots == nil) then
+                result = result .. "/" .. servicestatus[cluster_index]["MAPREDUCE"].reduce_slots
+            end
         end
-        if not (servicestatus["MAPREDUCE"].jobs_preparing == nil) then
-            result = result .. "/" .. servicestatus["MAPREDUCE"].jobs_preparing
-        end
-        if not (servicestatus["MAPREDUCE"].maps_running == nil) then
-            result = result .. " M:" .. servicestatus["MAPREDUCE"].maps_running
-        end
-        if not (servicestatus["MAPREDUCE"].map_slots == nil) then
-            result = result .. "/" .. servicestatus["MAPREDUCE"].map_slots
-        end
-        if not (servicestatus["MAPREDUCE"].reduces_running == nil) then
-            result = result .. " R:" .. servicestatus["MAPREDUCE"].reduces_running
-        end
-        if not (servicestatus["MAPREDUCE"].reduce_slots == nil) then
-            result = result .. "/" .. servicestatus["MAPREDUCE"].reduce_slots
-        end
+    else
+        -- print("servicestatus[" .. cluster_index .. "] == nil !")
     end
     return result
 end
 
 -- Get the CDH4 Zookeeper status
-function conky_cdh4_get_zookeeper_status()
-    return conky_cdh4_get_service_status( "ZOOKEEPER" )
+function conky_cdh4_get_zookeeper_status( cluster_index )
+    return conky_cdh4_get_service_status( cluster_index, "ZOOKEEPER" )
 end
 
 -- Get the number of CDH4 Zookeeper connections
-function conky_cdh4_get_zookeeper_connections()
+function conky_cdh4_get_zookeeper_connections( cluster_index )
     local output = "${offset 20}${voffset 0}${color #cccccc}${offset 55}${color #888888}"
-    for hostname, host in pairs(hoststatus) do
-        local zk_hoststatus = servicestatus["ZOOKEEPER"].hosts[hostname]
-        if not (zk_hoststatus == nil) then
-            if not (zk_hoststatus.zk_server_connection_count == nil) then
-                output = output .. zk_hoststatus.zk_server_connection_count
+    if not (hoststatus[cluster_index] == nil) then
+        for hostname, host in pairs(hoststatus[cluster_index]) do
+            local zk_hoststatus = servicestatus[cluster_index]["ZOOKEEPER"].hosts[hostname]
+            if not (zk_hoststatus == nil) then
+                if not (zk_hoststatus.zk_server_connection_count == nil) then
+                    output = output .. zk_hoststatus.zk_server_connection_count
+                else
+                    output = output .. " E "
+                end
             else
-                output = output .. " E "
+                output = output .. "  "
             end
-        else
-            output = output .. "  "
         end
     end
     output = output .. "${color}"
@@ -278,18 +301,18 @@ function conky_cdh4_get_zookeeper_connections()
 end
 
 -- Get the CDH4 Hue status
-function conky_cdh4_get_hue_status()
-    return conky_cdh4_get_service_status( "HUE" )
+function conky_cdh4_get_hue_status( cluster_index )
+    return conky_cdh4_get_service_status( cluster_index, "HUE" )
 end
 
 -- Get the CDH4 Hive status
-function conky_cdh4_get_hive_status()
-    return conky_cdh4_get_service_status( "HIVE" )
+function conky_cdh4_get_hive_status( cluster_index )
+    return conky_cdh4_get_service_status( cluster_index, "HIVE" )
 end
 
 -- Returns the host's color
-function conky_cdh4_get_host_color( hostname )
-    local status = hoststatus[hostname].status
+function conky_cdh4_get_host_color( cluster_index, hostname )
+    local status = hoststatus[cluster_index][hostname].status
     if     status == "GOOD" then return "${color #00cc00}"
     elseif status == "CONCERNING" then return "${color #cccc00}"
     else return "${color #cc0000}"
@@ -297,18 +320,22 @@ function conky_cdh4_get_host_color( hostname )
 end
 
 -- Get the CDH4 hosts status
-function conky_cdh4_get_hosts_status()
+function conky_cdh4_get_hosts_status( cluster_index )
     -- local output = "${voffset 4}"
     local output = "${voffset -3}${font DroidSansMono:size=12}"
-    for hostname, host in pairs(hoststatus) do
-        local hostnr = string.match(hostname, 'seldcdh00([0-5]).corpusers.net')
-        -- print (hostnr)
-        -- output = output .. conky_cdh4_get_host_color( hostname ) .. "${voffset -3}${font PizzaDude Bullets:size=12}8${offset 12}${font}${color}"
-        -- Numbers in double circles (Enclosed Alphanumerics - see http://www.unicode.org/charts/PDF/U2460.pdf)
-        -- Double circled one starts on U+24F5
-        -- Negative circled one starts on U+278A
-        output = output .. conky_cdh4_get_host_color( hostname ) .. hostnr .. "${offset 12}${color}"
-        -- output = output .. conky_cdh4_get_host_color( hostname ) .. "${voffset -3}" .. string.char(hostnr) .. "${offset 12}${font}${color}"
+    if not (hoststatus[cluster_index] == nil) then
+        local hostnr = 1
+        for hostname, host in pairs(hoststatus[cluster_index]) do
+            -- local hostnr = string.match(hostname, 'seldcdh00([0-5]).corpusers.net')
+            -- print (hostnr)
+            -- output = output .. conky_cdh4_get_host_color( hostname ) .. "${voffset -3}${font PizzaDude Bullets:size=12}8${offset 12}${font}${color}"
+            -- Numbers in double circles (Enclosed Alphanumerics - see http://www.unicode.org/charts/PDF/U2460.pdf)
+            -- Double circled one starts on U+24F5
+            -- Negative circled one starts on U+278A
+            output = output .. conky_cdh4_get_host_color( cluster_index, hostname ) .. hostnr .. "${offset 12}${color}"
+            -- output = output .. conky_cdh4_get_host_color( hostname ) .. "${voffset -3}" .. string.char(hostnr) .. "${offset 12}${font}${color}"
+            hostnr = hostnr + 1
+        end
     end
     return output .. "${font}"
 end
